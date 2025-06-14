@@ -2,11 +2,10 @@
 
 @extends('layouts.app')
 
-@section('title', $pageTitle)
+@section('title', $pageTitle ?? 'Daftar Transaksi')
 
 @section('content')
-<div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold text-gray-800">{{ $pageTitle }}</h1>
+<div class="flex justify-end mb-6 pr-3">
     <a href="{{ route('dashboard') }}" class="text-blue-600 hover:text-blue-400 duration-300 flex items-center">
         <i class="fas fa-arrow-left mr-2"></i>
         Kembali ke Dasbor

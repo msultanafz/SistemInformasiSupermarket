@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,16 +11,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Buat user utama untuk login dan sebagai kasir
-        // Ini akan selalu dijalankan setiap kali 'db:seed' dipanggil
-        \App\Models\User::factory()->create([
-            'name' => 'Admin Toko',
-            'email' => 'admin@toko.com',
-            // Secara default, passwordnya adalah 'password'
-        ]);
-
-        // 2. Panggil seeder lain setelah user dibuat
+        // Panggil seeder untuk User terlebih dahulu
         $this->call([
+            UserSeeder::class, // Pastikan ini dipanggil PALING AWAL
             CategorySeeder::class,
             ProductSeeder::class,
             TransactionSeeder::class,

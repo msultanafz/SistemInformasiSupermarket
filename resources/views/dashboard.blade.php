@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard')
+@section('title', $pageTitle ?? 'Dasbor')
 
 @section('content')
 
@@ -131,7 +131,14 @@
             <div class="mt-6">
                 <h3 class="text-md font-medium text-gray-800 mb-3">Kategori Produk Terlaris</h3>
                 <div class="space-y-3">
-                    <div class="flex justify-between"><span class="text-sm text-gray-600">...</span><span class="text-sm font-medium">...</span></div>
+                    @forelse ($topSellingCategories as $category)
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-600">{{ $category->category_name }}</span>
+                        <span class="text-sm font-medium">{{ $category->total_quantity_sold }} Unit</span>
+                    </div>
+                    @empty
+                    <div class="text-sm text-gray-500 text-center">Belum ada data penjualan kategori yang tercatat.</div>
+                    @endforelse
                 </div>
             </div>
         </div>

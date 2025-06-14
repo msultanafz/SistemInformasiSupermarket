@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB; // <-- Import DB Facade
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Transaction;
@@ -17,48 +17,62 @@ class TransactionSeeder extends Seeder
      */
     public function run(): void
     {
-        // Kita akan membuat 1 contoh transaksi
-        DB::transaction(function () {
-            // 1. Ambil data yang kita perlukan (kasir dan beberapa produk)
-            $kasir = User::where('email', 'admin@toko.com')->first();
-            $produk1 = Product::where('sku', 'CC-1000')->first(); // Coca-Cola
-            $produk2 = Product::where('sku', 'IDM-GRG')->first(); // Indomie
+        // Hapus data transaksi dan detail transaksi lama
+        TransactionDetail::truncate();
+        Transaction::truncate();
 
-            if (!$kasir || !$produk1 || !$produk2) {
-                // Jika user atau produk tidak ditemukan, hentikan seeder
-                $this->command->error('User kasir atau produk tidak ditemukan, seeder transaksi dibatalkan.');
-                return;
-            }
+        // Ambil semua user yang bisa berperan sebagai kasir (misal: role 'admin' atau 'cashier')
+        $cashiers = User::whereIn('role', ['admin', 'cashier'])->get();
 
-            // 2. Buat satu transaksi utama (struknya)
-            $transaksi = Transaction::create([
-                'transaction_code' => 'TRX-' . now()->format('Ymd-His'),
-                'user_id' => $kasir->id,
-                'total_amount' => 0, // Kita isi 0 dulu, nanti di-update
-            ]);
+        // Ambil semua produk yang tersedia
+        $products = Product::all();
 
-            // 3. Buat detail transaksinya (daftar belanjanya)
-            //   - Beli 2 Coca-Cola
-            TransactionDetail::create([
-                'transaction_id' => $transaksi->id,
-                'product_id' => $produk1->id,
-                'quantity' => 2,
-                'price_at_transaction' => $produk1->price,
-            ]);
+        // Pastikan ada kasir dan produk sebelum melanjutkan
+        if ($cashiers->isEmpty() || $products->isEmpty()) {
+            $this->command->error('Tidak ada kasir atau produk ditemukan untuk membuat transaksi, seeder dibatalkan.');
+            return;
+        }
 
-            //   - Beli 5 Indomie Goreng
-            TransactionDetail::create([
-                'transaction_id' => $transaksi->id,
-                'product_id' => $produk2->id,
-                'quantity' => 5,
-                'price_at_transaction' => $produk2->price,
-            ]);
+        // Jumlah transaksi yang ingin kita buat
+        $numberOfTransactions = 20; // Contoh: buat 20 transaksi
 
-            // 4. Hitung total belanja sebenarnya
-            $totalBelanja = ($produk1->price * 2) + ($produk2->price * 5);
+        for ($i = 0; $i < $numberOfTransactions; $i++) {
+            DB::transaction(function () use ($cashiers, $products) {
+                // Pilih kasir secara acak
+                $kasir = $cashiers->random();
 
-            // 5. Update transaksi utama dengan total belanja yang benar
-            $transaksi->update(['total_amount' => $totalBelanja]);
-        });
+                // Buat transaksi utama (struknya)
+                $transaction = Transaction::create([
+                    'transaction_code' => 'TRX-' . now()->format('Ymd-His') . '-' . uniqid(), // Tambah uniqid agar lebih unik
+                    'user_id' => $kasir->id,
+                    'total_amount' => 0, // Akan di-update nanti
+                ]);
+
+                $totalAmountForThisTransaction = 0;
+                $numberOfItems = rand(1, 5); // Setiap transaksi berisi 1-5 jenis produk
+
+                // Buat detail transaksinya
+                // Pastikan produk yang dipilih unik dalam satu transaksi
+                $selectedProducts = $products->shuffle()->take($numberOfItems);
+
+                foreach ($selectedProducts as $product) {
+                    $quantity = rand(1, 10); // Kuantitas per produk antara 1-10
+                    $subtotal = $quantity * $product->price;
+                    $totalAmountForThisTransaction += $subtotal;
+
+                    TransactionDetail::create([
+                        'transaction_id' => $transaction->id,
+                        'product_id' => $product->id,
+                        'quantity' => $quantity,
+                        'price_at_transaction' => $product->price,
+                    ]);
+                }
+
+                // Update transaksi utama dengan total belanja yang benar
+                $transaction->update(['total_amount' => $totalAmountForThisTransaction]);
+            });
+        }
+
+        $this->command->info($numberOfTransactions . ' transaksi telah berhasil dibuat.');
     }
 }
