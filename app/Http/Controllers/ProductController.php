@@ -2,19 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category; // Tambahkan ini jika belum ada
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB; // Pastikan ini di-import untuk DB::raw()
 
 class ProductController extends Controller
 {
     /**
-     * Menampilkan SEMUA produk dengan pagination (untuk route products.index).
+     * Menampilkan SEMUA produk dengan pagination dan pencarian yang diperbarui.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $allProducts = Product::with('category')->latest()->paginate(10); // Ambil juga data kategori
-        $pageTitle = 'Daftar Semua Produk'; // Judul halaman
+        $query = Product::with('category')->latest(); // Mulai query
+
+        // Logika Pencarian yang Diperbarui
+        if ($request->has('search') && $request->search != '') {
+            $search = strtolower($request->search); // Ubah input pencarian menjadi huruf kecil
+
+            $query->where(function ($q) use ($search) {
+                // Hanya mencari berdasarkan NAMA PRODUK
+                // Menggunakan lower() di database agar tidak peka huruf besar/kecil
+                $q->where(DB::raw('lower(name)'), 'like', '%' . $search . '%');
+            });
+        }
+
+        $allProducts = $query->paginate(10);
+        $pageTitle = 'Daftar Semua Produk';
 
         return view('products.index', [
             'products' => $allProducts,
@@ -24,15 +38,17 @@ class ProductController extends Controller
 
     /**
      * Menampilkan produk yang stoknya hampir habis (untuk route products.low-stock).
+     * Metode ini juga perlu disesuaikan untuk menerima Request jika ingin pencarian
+     * di halaman ini juga berfungsi. Namun, untuk menjaga fokus, kita biarkan dulu
+     * tanpa pencarian di sini, hanya tampilkan produk stok rendah.
      */
-    public function showLowStock()
+    public function showLowStock(Request $request)
     {
         $lowStockProducts = Product::with('category')
-            ->where('stock', '>', 0)
             ->where('stock', '<=', 10)
             ->latest()
-            ->paginate(10); // Gunakan paginate juga untuk konsistensi
-        $pageTitle = 'Produk Segera Habis'; // Judul halaman
+            ->paginate(10);
+        $pageTitle = 'Produk Segera Habis';
 
         return view('products.index', [
             'products' => $lowStockProducts,
@@ -45,7 +61,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $categories = Category::all(); // Ambil semua kategori untuk dropdown
+        $categories = Category::all();
         $pageTitle = 'Tambah Produk Baru';
 
         return view('products.create', [
@@ -59,7 +75,6 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        // Logika validasi dan penyimpanan produk akan ditambahkan di sini
         $request->validate([
             'name' => 'required|string|max:255',
             'sku' => 'required|string|max:255|unique:products,sku',
@@ -85,8 +100,6 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        // return view('products.show', compact('product'));
-        // Untuk saat ini, kita bisa redirect ke halaman edit saja jika perlu detail
         return redirect()->route('products.edit', $product->id);
     }
 
@@ -111,7 +124,7 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'sku' => 'required|string|max:255|unique:products,sku,' . $product->id, // Abaikan SKU ini untuk produk yang sedang diedit
+            'sku' => 'required|string|max:255|unique:products,sku,' . $product->id,
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'category_id' => 'required|exists:categories,id',

@@ -1,23 +1,30 @@
 @extends('layouts.app')
 
-@section('title', $pageTitle ?? 'Daftar Produk') {{-- Menggunakan pageTitle dari Controller --}}
+@section('title', $pageTitle ?? 'Daftar Produk')
 
 @section('content')
-<div class="flex justify-end mb-6 pr-3">
-    <a href="{{ route('dashboard') }}" class="text-blue-600 hover:text-blue-400 duration-300 flex items-center">
-        <i class="fas fa-arrow-left mr-2"></i>
-        Kembali ke Dasbor
+<div class="flex justify-between items-center mb-6">
+    <a href="{{ route('products.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center">
+        <i class="fas fa-plus mr-2"></i> Tambah Produk Baru
+    </a>
+    <a href="{{ route('dashboard') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg flex items-center">
+        <i class="fas fa-arrow-left mr-2"></i> Kembali ke Dasbor
     </a>
 </div>
 
 <div class="bg-white rounded-lg shadow overflow-hidden">
     <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
         <h2 class="text-lg font-semibold text-gray-800">Semua Produk</h2>
-        {{-- Form Pencarian (Akan kita tambahkan nanti) --}}
-        <div class="relative">
-            <input type="text" placeholder="Cari produk..." class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-        </div>
+        <form id="search-form" action="{{ route('products.index') }}" method="GET" class="relative flex items-center">
+            <input type="text" name="search" id="search-input"
+                placeholder="Cari produk..."
+                class="pl-3 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value="{{ request('search') }}"
+                onkeyup="liveSearch()">
+            <button type="submit" class="absolute right-0 top-0 h-full px-3 text-gray-700 hover:bg-gray-100 rounded-r-lg">
+                <i class="fas fa-search"></i>
+            </button>
+        </form>
     </div>
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
@@ -48,7 +55,7 @@
                         <button type="button"
                             data-id="{{ $product->id }}"
                             onclick="confirmDelete(this)"
-                            class="cursor-pointer text-red-600 hover:text-red-900" title="Hapus">
+                            class="text-red-600 hover:text-red-900" title="Hapus">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </td>
@@ -62,12 +69,33 @@
         </table>
     </div>
     <div class="p-6">
-        {{ $products->links() }}
-    </div>
-    <div class="flex ml-6 mb-8">
-        <a href="{{ route('products.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center">
-            <i class="fas fa-plus mr-2"></i> Tambah Produk Baru
-        </a>
+        {{ $products->appends(request()->query())->links() }}
     </div>
 </div>
+
+@push('scripts')
+<script>
+    let searchTimeout;
+
+    function liveSearch() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            document.getElementById('search-form').submit();
+        }, 300);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search-input');
+        const urlParams = new URLSearchParams(window.location.search); // Menggunakan URLSearchParams
+        const searchTermFromUrl = urlParams.get('search'); // Mendapatkan nilai parameter 'search'
+
+        // Fokuskan input jika parameter 'search' ada di URL (bahkan jika kosong)
+        if (searchTermFromUrl !== null) {
+            searchInput.focus();
+            // Memposisikan kursor di akhir teks yang ada
+            searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
+        }
+    });
+</script>
+@endpush
 @endsection

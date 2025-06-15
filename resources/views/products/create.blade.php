@@ -3,10 +3,9 @@
 @section('title', $pageTitle ?? 'Tambah Produk Baru')
 
 @section('content')
-<div class="flex justify-end mb-6 pr-3">
-    <a href="{{ route('products.index') }}" class="text-blue-600 hover:text-blue-400 duration-300 flex items-center">
-        <i class="fas fa-arrow-left mr-2"></i>
-        Kembali ke Daftar Produk
+<div class="flex justify-end mb-6">
+    <a href="{{ route('products.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg flex items-center">
+        <i class="fas fa-arrow-left mr-2"></i> Kembali ke Dasbor
     </a>
 </div>
 
