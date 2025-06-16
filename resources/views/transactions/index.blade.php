@@ -6,9 +6,8 @@
 
 @section('content')
 <div class="flex justify-end mb-6 pr-3">
-    <a href="{{ route('dashboard') }}" class="text-blue-600 hover:text-blue-400 duration-300 flex items-center">
-        <i class="fas fa-arrow-left mr-2"></i>
-        Kembali ke Dasbor
+    <a href="{{ route('dashboard') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg flex items-center">
+        <i class="fas fa-arrow-left mr-2"></i> Kembali ke Dasbor
     </a>
 </div>
 
