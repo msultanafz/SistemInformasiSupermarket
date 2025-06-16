@@ -3,6 +3,7 @@
 import "./bootstrap"; // Memastikan bootstrap.js atau dependensi utama lainnya dimuat
 
 import Swal from "sweetalert2"; // Mengimpor SweetAlert2
+window.Swal = Swal;
 
 // Mengekspor fungsi confirmDelete ke global scope (window)
 // Agar dapat dipanggil langsung dari atribut onclick di HTML

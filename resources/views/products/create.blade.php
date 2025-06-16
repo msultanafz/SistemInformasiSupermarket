@@ -5,7 +5,7 @@
 @section('content')
 <div class="flex justify-end mb-6">
     <a href="{{ route('products.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg flex items-center">
-        <i class="fas fa-arrow-left mr-2"></i> Kembali ke Dasbor
+        <i class="fas fa-arrow-left mr-2"></i> Kembali ke Daftar Produk
     </a>
 </div>
 

@@ -8,7 +8,7 @@
         <i class="fas fa-plus mr-2"></i> Tambah Produk Baru
     </a>
     <a href="{{ route('dashboard') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg flex items-center">
-        <i class="fas fa-arrow-left mr-2"></i> Kembali ke Dasbor
+        <i class="fas fa-arrow-left mr-2"></i> Kembali ke Dashboard
     </a>
 </div>
 

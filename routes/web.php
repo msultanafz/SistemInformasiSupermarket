@@ -4,10 +4,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
-// use App\Http\Controllers\TransactionController; // Ini belum dibutuhkan jika menggunakan closure sementara
+use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\StockOpnameController; // <-- Pastikan ini di-import
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Transaction; // Penting: Pastikan ini di-import
+use App\Models\Transaction;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -15,18 +18,11 @@ use App\Models\Transaction; // Penting: Pastikan ini di-import
 |--------------------------------------------------------------------------
 */
 
-// Middleware 'guest' memastikan user yang sudah login tidak bisa mengakses halaman ini lagi.
-// Mereka akan otomatis diarahkan ke '/dashboard'.
 Route::get('/', function () {
-    return view('login'); // Pastikan view 'login' ada
+    return view('login');
 })->middleware('guest')->name('login');
 
-// Route untuk memproses data dari form login
 Route::post('/login', [AuthController::class, 'loginAction'])->name('login.action');
-
-// Route untuk logout
-// Pindahkan ke dalam grup 'auth' agar hanya user terautentikasi yang bisa logout
-// Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
 /*
@@ -35,7 +31,6 @@ Route::post('/login', [AuthController::class, 'loginAction'])->name('login.actio
 |--------------------------------------------------------------------------
 */
 
-// Grup route ini akan otomatis menerapkan middleware 'auth' ke semua route di dalamnya.
 Route::middleware(['auth'])->group(function () {
     // Route Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -44,30 +39,30 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/products/low-stock', [ProductController::class, 'showLowStock'])->name('products.low-stock');
 
     // Route Sumber Daya (Resource) untuk Produk
-    // Ini akan membuat products.index, products.create, products.store, products.show, products.edit, products.update, products.destroy
     Route::resource('products', ProductController::class);
 
-    // Route untuk daftar transaksi hari ini
-    // Ini adalah definisi yang benar dan lengkap
-    Route::get('/transactions/today', function () {
-        $pageTitle = 'Transaksi Hari Ini'; // Judul halaman
-        // Ambil transaksi hari ini dan paginasi
-        $transactions = Transaction::with('user')
-            ->whereDate('created_at', today())
-            ->latest()
-            ->paginate(10); // Menampilkan 10 transaksi per halaman
+    // ROUTE TRANSAKSI
+    Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+    Route::get('/transactions/today', [TransactionController::class, 'todayTransactions'])->name('transactions.today');
+    Route::get('/transactions/create', [TransactionController::class, 'create'])->name('transactions.create');
+    Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+    Route::get('/transactions/{transaction}', [TransactionController::class, 'show'])->name('transactions.show');
 
-        return view('transactions.index', [
-            'pageTitle' => $pageTitle,
-            'transactions' => $transactions // Kirim data transaksi ke view
-        ]);
-    })->name('transactions.today');
+    // ROUTE LAPORAN
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/daily', [ReportController::class, 'dailyReport'])->name('reports.daily');
+    Route::get('/reports/monthly/{year?}/{month?}', [ReportController::class, 'monthlyReport'])->name('reports.monthly');
+    Route::get('/reports/yearly/{year?}', [ReportController::class, 'yearlyReport'])->name('reports.yearly');
 
-    // Route Logout (Dipindahkan ke dalam grup 'auth')
+    // ROUTE STOK OPNAME - TAMBAHKAN INI
+    Route::get('/stock-opname', [StockOpnameController::class, 'index'])->name('stock-opname.index');
+    Route::post('/stock-opname', [StockOpnameController::class, 'store'])->name('stock-opname.store');
+
+    // Route Logout
     Route::post('/logout', function (Request $request) {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('login'); // Kembali ke halaman login setelah logout
+        return redirect()->route('login');
     })->name('logout');
 });
