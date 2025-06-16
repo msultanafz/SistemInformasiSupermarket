@@ -14,7 +14,7 @@ class DashboardController extends Controller
     public function index()
     {
         // --- Data untuk Kartu Atas ---
-        $lowStockCount = Product::where('stock', '>', 0)->where('stock', '<=', 10)->count();
+        $lowStockCount = Product::where('stock', '<=', 10)->count();
         $todayRevenue = Transaction::whereDate('created_at', today())->sum('total_amount');
         $todayTransactionCount = Transaction::whereDate('created_at', today())->count();
         $totalProductCount = Product::count();

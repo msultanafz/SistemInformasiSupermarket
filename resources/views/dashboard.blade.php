@@ -46,7 +46,7 @@
             <div class="flex items-center">
                 <div class="p-3 rounded-full bg-red-100 text-red-600"><i class="fas fa-exclamation-triangle text-xl"></i></div>
                 <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-500">Produk Segera Habis</p>
+                    <p class="text-sm font-medium text-gray-500">Produk Habis / Segera Habis</p>
                     <p class="text-2xl font-semibold text-gray-800">{{ $stokHampirHabis }}</p>
                 </div>
             </div>
