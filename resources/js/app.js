@@ -3,28 +3,74 @@
 import "./bootstrap"; // Memastikan bootstrap.js atau dependensi utama lainnya dimuat
 
 import Swal from "sweetalert2"; // Mengimpor SweetAlert2
+
+// Mengekspor Swal ke global scope
 window.Swal = Swal;
 
-// Mengekspor fungsi confirmDelete ke global scope (window)
-// Agar dapat dipanggil langsung dari atribut onclick di HTML
-window.confirmDelete = function (button) {
-    const productId = button.getAttribute("data-id"); // Mengambil ID dari atribut data-id pada tombol
+// Logika Notifikasi Global dari APP_FLASH_MESSAGES
+document.addEventListener("DOMContentLoaded", function () {
+    const flashMessages = window.APP_FLASH_MESSAGES;
 
-    // Menampilkan popup konfirmasi SweetAlert2
+    if (flashMessages.success) {
+        Swal.fire({
+            title: "Berhasil!",
+            text: flashMessages.success,
+            icon: "success",
+            toast: true,
+            position: "bottom-left", // Atur ke 'top-end' jika ingin di kanan atas
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+        });
+    }
+
+    if (flashMessages.error) {
+        Swal.fire({
+            title: "Gagal!",
+            text: flashMessages.error,
+            icon: "error",
+            toast: true,
+            position: "bottom-left", // Atur ke 'top-end' jika ingin di kanan atas
+            showConfirmButton: false,
+            timer: 5000,
+            timerProgressBar: true,
+        });
+    }
+
+    if (
+        flashMessages.validationErrors &&
+        flashMessages.validationErrors.length > 0
+    ) {
+        let errorsHtml = "<ul>";
+        flashMessages.validationErrors.forEach((error) => {
+            errorsHtml += `<li>${error}</li>`;
+        });
+        errorsHtml += "</ul>";
+
+        Swal.fire({
+            title: "Terjadi Kesalahan Validasi!",
+            html: errorsHtml,
+            icon: "error",
+            confirmButtonText: "Tutup",
+        });
+    }
+});
+
+// Fungsi confirmDelete - HAPUS TANDA KOMENTAR (//) DARI SINI
+window.confirmDelete = function (button) {
+    const productId = button.getAttribute('data-id');
     Swal.fire({
-        title: "Anda yakin?",
+        title: 'Anda yakin?',
         text: "Produk ini akan dihapus secara permanen!",
-        icon: "warning", // Ikon peringatan
-        showCancelButton: true, // Menampilkan tombol batal
-        confirmButtonColor: "#d33", // Warna merah untuk tombol konfirmasi
-        cancelButtonColor: "#3085d6", // Warna biru untuk tombol batal
-        confirmButtonText: "Ya, Hapus!", // Teks tombol konfirmasi
-        cancelButtonText: "Batal", // Teks tombol batal
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
     }).then((result) => {
-        // Jika pengguna mengklik 'Ya, Hapus!'
         if (result.isConfirmed) {
-            // Mengirimkan formulir hapus yang tersembunyi secara programatis
-            document.getElementById("delete-form-" + productId).submit();
+            document.getElementById('delete-form-' + productId).submit();
         }
     });
 };

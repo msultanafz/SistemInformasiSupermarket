@@ -1,53 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
+{{-- resources/views/login.blade.php --}}
 
+<!DOCTYPE html>
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    @vite('resources/css/app.css')
-    <title>Document</title>
-
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Login - Supermarket Management</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to right, #4a90e2, #50b0ef); /* Gradient biru yang menarik */
+        }
+    </style>
 </head>
+<body class="flex items-center justify-center min-h-screen text-gray-800">
 
-<body>
-    <div class="flex justify-center items-center h-screen bg-gray-100">
-        <div class="xl:w-[700px] px-10 h-[400px] bg-white rounded-3xl shadow-xl shadow-gray-400">
-            <h1 class="text-center text-3xl font-bold mt-2 mb-2">Login</h1>
-            <hr>
-            <div class="flex justify-center mt-10">
-                <form method="POST" action="{{ route('login.action') }}">
-                    @csrf
-
-                    <!-- Email -->
-                    <input
-                        type="email"
-                        name="email"
-                        id="email"
-                        class="py-3 p-5 rounded-md bg-zinc-50 md:w-[500px] w-[300px] outline-indigo-400 shadow-gray-400 shadow-md"
-                        placeholder="Enter your email"
-                        required>
-                    <br><br>
-
-                    <!-- Password -->
-                    <input
-                        type="password"
-                        name="password"
-                        id="password"
-                        class="py-3 p-5 rounded-md bg-zinc-50 md:w-[500px] w-[300px] outline-indigo-400 shadow-gray-400 shadow-md"
-                        placeholder="Enter your password"
-                        required>
-
-                    <div class="flex justify-end mt-3 mb-4">
-                        <a href="#" class="text-blue-700 hover:scale-105 duration-300">Forgot password</a>
-                    </div>
-
-                    <button type="submit" class="py-3 bg-indigo-400 text-white w-full rounded-md font-bold hover:bg-indigo-700 duration-500 shadow-gray-400 shadow-md">
-                        Submit
-                    </button>
-                </form>
-            </div>
+    <div class="w-full max-w-md bg-white rounded-xl shadow-2xl p-8 transform transition-all duration-300 ">
+        <div class="text-center mb-8">
+            <i class="fas fa-store text-blue-600 text-5xl mb-3"></i>
+            <h1 class="text-3xl font-extrabold text-gray-900">Supermarket Management</h1>
+            <p class="text-gray-500 mt-2">Masuk ke akun Anda</p>
         </div>
-    </div>
-</body>
 
+        <form action="{{ route('login.action') }}" method="POST">
+            @csrf
+            <div class="mb-5">
+                <label for="email" class="block text-gray-700 text-sm font-semibold mb-2">Email:</label>
+                <input type="email" name="email" id="email" 
+                       class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out" 
+                       value="{{ old('email') }}" required autofocus placeholder="Masukkan email Anda">
+            </div>
+            <div class="mb-6">
+                <label for="password" class="block text-gray-700 text-sm font-semibold mb-2">Password:</label>
+                <input type="password" name="password" id="password" 
+                       class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out" 
+                       required placeholder="Masukkan password Anda">
+            </div>
+            
+            <button type="submit" 
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transform transition-all duration-200 ease-in-out hover:scale-102 hover:shadow-lg text-lg">
+                Login
+            </button>
+        </form>
+    </div>
+
+    {{-- SCRIPT KHUSUS UNTUK HALAMAN LOGIN: DEFINISI APP_FLASH_MESSAGES (INI SUDAH BENAR) --}}
+    <script type="text/javascript">
+        window.APP_FLASH_MESSAGES = {
+            success: @json(session('success')),
+            error: @json(session('error')),
+            validationErrors: @json($errors->all())
+        };
+    </script>
+</body>
 </html>

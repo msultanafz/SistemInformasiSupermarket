@@ -43,9 +43,6 @@
                                 value="{{ old('products.' . $loop->index . '.actual_stock', $product->stock) }}"
                                 class="w-full border rounded-md px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-500 @error('products.' . $loop->index . '.actual_stock') border-red-500 @enderror"
                                 min="0" style="max-width: 100px;">
-                            @error('products.' . $loop->index . '.actual_stock')
-                            <span class="absolute right-0 top-0 mt-[-18px] text-red-500 text-xs italic bg-white px-1" title="{{ $message }}">!</span>
-                            @enderror
                         </td>
                     </tr>
                     @empty
@@ -62,58 +59,3 @@
     </form>
 </div>
 @endsection
-@push('scripts')
-<script>
-    document.getElementById('stock-opname-form').addEventListener('submit', async function(event) {
-        event.preventDefault();
-
-        const form = event.target;
-        const items = [];
-
-        form.querySelectorAll('tbody tr').forEach(row => {
-            const productIdInput = row.querySelector('input[name$="[id]"]');
-            const actualStockInput = row.querySelector('input[name$="[actual_stock]"]');
-
-            if (productIdInput && actualStockInput) {
-                items.push({
-                    id: parseInt(productIdInput.value),
-                    actual_stock: parseInt(actualStockInput.value)
-                });
-            }
-        });
-
-        try {
-            const response = await fetch(form.action, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    products: items
-                })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                await Swal.fire('Berhasil!', data.message, 'success');
-                window.location.reload();
-            } else {
-                let errorMessage = data.message || 'Terjadi kesalahan saat menyimpan stok.';
-                if (data.errors) {
-                    errorMessage += '\n';
-                    for (const key in data.errors) {
-                        errorMessage += data.errors[key].join('\n') + '\n';
-                    }
-                }
-                Swal.fire('Gagal!', errorMessage, 'error');
-            }
-
-        } catch (error) {
-            console.error('Error:', error);
-            Swal.fire('Error Jaringan!', 'Tidak dapat terhubung ke server.', 'error');
-        }
-    });
-</script>
-@endpush

@@ -4,25 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Supplier; // Pastikan ini di-import
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB; // Pastikan ini di-import untuk DB::raw()
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log; // Pastikan ini di-import
 
 class ProductController extends Controller
 {
     /**
-     * Menampilkan SEMUA produk dengan pagination dan pencarian yang diperbarui.
+     * Menampilkan SEMUA produk dengan pagination, pencarian, dan eager loading supplier.
      */
     public function index(Request $request)
     {
-        $query = Product::with('category')->latest(); // Mulai query
+        $query = Product::with(['category', 'supplier'])->latest(); 
 
-        // Logika Pencarian yang Diperbarui
         if ($request->has('search') && $request->search != '') {
-            $search = strtolower($request->search); // Ubah input pencarian menjadi huruf kecil
-
-            $query->where(function ($q) use ($search) {
-                // Hanya mencari berdasarkan NAMA PRODUK
-                // Menggunakan lower() di database agar tidak peka huruf besar/kecil
+            $search = strtolower($request->search);
+            $query->where(function($q) use ($search) {
                 $q->where(DB::raw('lower(name)'), 'like', '%' . $search . '%');
             });
         }
@@ -37,17 +35,14 @@ class ProductController extends Controller
     }
 
     /**
-     * Menampilkan produk yang stoknya hampir habis (untuk route products.low-stock).
-     * Metode ini juga perlu disesuaikan untuk menerima Request jika ingin pencarian
-     * di halaman ini juga berfungsi. Namun, untuk menjaga fokus, kita biarkan dulu
-     * tanpa pencarian di sini, hanya tampilkan produk stok rendah.
+     * Menampilkan produk yang stoknya hampir habis.
      */
     public function showLowStock(Request $request)
     {
-        $lowStockProducts = Product::with('category')
-            ->where('stock', '<=', 10)
-            ->latest()
-            ->paginate(10);
+        $lowStockProducts = Product::with(['category', 'supplier'])
+                                ->where('stock', '<=', 10)
+                                ->latest()
+                                ->paginate(10);
         $pageTitle = 'Produk Segera Habis';
 
         return view('products.index', [
@@ -58,14 +53,17 @@ class ProductController extends Controller
 
     /**
      * Menampilkan form untuk membuat produk baru (products.create).
+     * PASTIKAN METODE INI ADA DAN LENGKAP
      */
     public function create()
     {
         $categories = Category::all();
+        $suppliers = Supplier::all(); // Ambil semua supplier
         $pageTitle = 'Tambah Produk Baru';
 
         return view('products.create', [
             'categories' => $categories,
+            'suppliers' => $suppliers, // Kirim daftar supplier ke view
             'pageTitle' => $pageTitle
         ]);
     }
@@ -81,6 +79,7 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'category_id' => 'required|exists:categories,id',
+            'supplier_id' => 'nullable|exists:suppliers,id', // Validasi supplier_id
         ]);
 
         Product::create([
@@ -89,11 +88,11 @@ class ProductController extends Controller
             'price' => $request->price,
             'stock' => $request->stock,
             'category_id' => $request->category_id,
+            'supplier_id' => $request->supplier_id, // Simpan supplier_id
         ]);
 
         return redirect()->route('products.index')->with('success', 'Produk berhasil ditambahkan!');
     }
-
 
     /**
      * Menampilkan detail produk (products.show) - Opsional, bisa diabaikan untuk CRUD dasar.
@@ -109,10 +108,12 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::all();
+        $suppliers = Supplier::all(); // Ambil semua supplier
         $pageTitle = 'Edit Produk: ' . $product->name;
         return view('products.edit', [
             'product' => $product,
             'categories' => $categories,
+            'suppliers' => $suppliers, // Kirim daftar supplier ke view
             'pageTitle' => $pageTitle
         ]);
     }
@@ -128,6 +129,7 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'category_id' => 'required|exists:categories,id',
+            'supplier_id' => 'nullable|exists:suppliers,id',
         ]);
 
         $product->update([
@@ -136,6 +138,7 @@ class ProductController extends Controller
             'price' => $request->price,
             'stock' => $request->stock,
             'category_id' => $request->category_id,
+            'supplier_id' => $request->supplier_id,
         ]);
 
         return redirect()->route('products.index')->with('success', 'Produk berhasil diperbarui!');
@@ -146,7 +149,18 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        $product->delete();
-        return redirect()->route('products.index')->with('success', 'Produk berhasil dihapus!');
+        try {
+            if ($product->transactionDetails()->count() > 0) {
+                return redirect()->back()->withErrors(['error' => 'Produk tidak bisa dihapus karena sudah ada di riwayat transaksi.']);
+            }
+            $product->delete();
+            return redirect()->route('products.index')->with('success', 'Produk berhasil dihapus!');
+        } catch (\Exception | \Illuminate\Database\QueryException $e) {
+            Log::error('Gagal menghapus produk: ' . $e->getMessage());
+            if (str_contains($e->getMessage(), 'SQLSTATE[23503]')) {
+                 return redirect()->back()->withErrors(['error' => 'Produk tidak bisa dihapus karena masih ada data terkait (misal: di detail transaksi).']);
+            }
+            return redirect()->back()->withErrors(['error' => 'Gagal menghapus produk. Silakan coba lagi.']);
+        }
     }
 }

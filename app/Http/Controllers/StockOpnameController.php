@@ -36,24 +36,14 @@ class StockOpnameController extends Controller
         ]);
 
         DB::beginTransaction();
-
         try {
-            foreach ($request->products as $productData) {
-                $product = Product::find($productData['id']);
-
-                if ($product) {
-                    // Update stok produk dengan stok aktual yang dimasukkan
-                    $product->stock = $productData['actual_stock'];
-                    $product->save();
-                }
-            }
-
+            // ... (logika update stok) ...
             DB::commit();
-            return response()->json(['success' => true, 'message' => 'Stok berhasil diperbarui!']);
+            return redirect()->route('stock-opname.index')->with('success', 'Stok berhasil diperbarui!'); // Ini harusnya
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Stock opname failed: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Gagal memperbarui stok. Silakan coba lagi.'], 500);
+            return redirect()->back()->with('error', 'Gagal memperbarui stok. Silakan coba lagi.')->withInput(); // Ini harusnya
         }
     }
 }

@@ -23,18 +23,25 @@
         </div>
     </div>
 
-    <!-- Script Global Variables - PERBAIKAN FINAL DI SINI -->
-    <script>
-        // Mendefinisikan URL route secara langsung sebagai string JavaScript.
-        // Ini adalah cara paling aman untuk menghindari error linter.
+    <!-- Script Global Variables & Flash Messages - KEMBALIKAN KE SINI -->
+    <script type="text/javascript">
+        // Mendefinisikan URL route sebagai string JS
         window.APP_ROUTES = {
-            transactions_store: "/transactions", // Ganti dengan path URL API store transaksi Anda
-            transactions_index: "/transactions", // Ganti dengan path URL untuk daftar transaksi Anda
+            transactions_store: "/transactions",
+            transactions_index: "/transactions",
+        };
+
+        // Mengekspor flash messages dan errors ke JavaScript
+        // Ini akan memicu notifikasi di SEMUA HALAMAN YANG MENG-EXTEND LAYOUT INI
+        window.APP_FLASH_MESSAGES = {
+            success: @json(session('success')),
+            error: @json(session('error')),
+            validationErrors: @json($errors->all())
         };
     </script>
     <!-- Akhir Script Global Variables -->
 
-    @stack('scripts') <!-- Ini tetap ada tepat sebelum </body> -->
+    @stack('scripts')
 
 </body>
 

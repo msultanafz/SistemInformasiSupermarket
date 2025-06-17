@@ -6,14 +6,21 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany; // Import HasMany
 
-class Category extends Model
+class Supplier extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = [
+        'name',
+        'contact_person',
+        'phone',
+        'email',
+        'address',
+    ];
 
     /**
-     * Relasi: Satu kategori memiliki BANYAK produk.
+     * Dapatkan produk-produk yang dipasok oleh supplier ini.
+     * Sesuai ERD: suppliers ||--o{ products : 'memasok'
      */
     public function products(): HasMany
     {

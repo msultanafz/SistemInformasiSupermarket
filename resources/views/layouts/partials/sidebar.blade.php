@@ -28,10 +28,10 @@
                 <a href="{{ route('products.index') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-md {{ request()->routeIs('products.*') ? 'bg-blue-700' : '' }} text-white hover:bg-blue-700">
                     <i class="fas fa-boxes mr-3"></i> Produk
                 </a>
-                <a href="#" class="flex items-center px-4 py-2 text-sm font-medium rounded-md text-white hover:bg-blue-700">
+                <a href="{{ route('categories.index') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-md {{ request()->routeIs('categories.*') ? 'bg-blue-700' : '' }} text-white hover:bg-blue-700">
                     <i class="fas fa-tags mr-3"></i> Kategori
                 </a>
-                <a href="#" class="flex items-center px-4 py-2 text-sm font-medium rounded-md text-white hover:bg-blue-700">
+                <a href="{{ route('suppliers.index') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-md {{ request()->routeIs('suppliers.*') ? 'bg-blue-700' : '' }} text-white hover:bg-blue-700">
                     <i class="fas fa-truck mr-3"></i> Supplier
                 </a>
 
@@ -40,14 +40,14 @@
                 <a href="{{ route('reports.index') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-md {{ request()->routeIs('reports.*') ? 'bg-blue-700' : '' }} text-white hover:bg-blue-700">
                     <i class="fas fa-chart-bar mr-3"></i> Laporan
                 </a>
-                <a href="#" class="flex items-center px-4 py-2 text-sm font-medium rounded-md text-white hover:bg-blue-700">
+                <a href="{{ route('settings.index') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-md {{ request()->routeIs('settings.*') ? 'bg-blue-700' : '' }} text-white hover:bg-blue-700">
                     <i class="fas fa-cog mr-3"></i> Pengaturan
                 </a>
 
                 {{-- Logout Button --}}
                 <form method="POST" action="{{ route('logout') }}" class="w-full">
                     @csrf
-                    <button type="submit" class="w-full flex items-center px-4 py-2 text-sm font-medium rounded-md text-white hover:bg-blue-700 text-left">
+                    <button type="submit" class="w-full cursor-pointer flex items-center px-4 py-2 text-sm font-medium rounded-md text-white hover:bg-blue-700 text-left">
                         <i class="fas fa-sign-out-alt mr-3"></i> Logout
                     </button>
                 </form>

@@ -1,3 +1,5 @@
+{{-- File: resources/views/products/index.blade.php --}}
+
 @extends('layouts.app')
 
 @section('title', $pageTitle ?? 'Daftar Produk')
@@ -17,10 +19,10 @@
         <h2 class="text-lg font-semibold text-gray-800">Semua Produk</h2>
         <form id="search-form" action="{{ route('products.index') }}" method="GET" class="relative flex items-center">
             <input type="text" name="search" id="search-input"
-                placeholder="Cari produk..."
-                class="pl-3 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value="{{ request('search') }}"
-                onkeyup="liveSearch()">
+                   placeholder="Cari produk..."
+                   class="pl-3 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   value="{{ request('search') }}"
+                   onkeyup="liveSearch()">
             <button type="submit" class="absolute right-0 top-0 h-full px-3 text-gray-700 hover:bg-gray-100 rounded-r-lg">
                 <i class="fas fa-search"></i>
             </button>
@@ -35,35 +37,37 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stok</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier</th> {{-- KOLOM BARU --}}
                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse ($products as $product)
-                <tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $product->sku }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{{ $product->name }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product->category->name ?? 'N/A' }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Rp {{ number_format($product->price, 0, ',', '.') }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product->stock }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-center space-x-2">
-                        <a href="{{ route('products.edit', $product->id) }}" class="text-indigo-600 hover:text-indigo-900" title="Edit"><i class="fas fa-edit"></i></a>
-                        <form id="delete-form-{{ $product->id }}" action="{{ route('products.destroy', $product->id) }}" method="POST" style="display: none;">
-                            @csrf
-                            @method('DELETE')
-                        </form>
-                        <button type="button"
-                            data-id="{{ $product->id }}"
-                            onclick="confirmDelete(this)"
-                            class="text-red-600 hover:text-red-900" title="Hapus">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </td>
-                </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $product->sku }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{{ $product->name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product->category->name ?? 'N/A' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Rp {{ number_format($product->price, 0, ',', '.') }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product->stock }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product->supplier->name ?? 'N/A' }}</td> {{-- MENAMPILKAN SUPPLIER --}}
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-center space-x-2">
+                            <a href="{{ route('products.edit', $product->id) }}" class="text-indigo-600 hover:text-indigo-900" title="Edit"><i class="fas fa-edit"></i></a>
+                            <form id="delete-form-{{ $product->id }}" action="{{ route('products.destroy', $product->id) }}" method="POST" style="display: none;">
+                                @csrf
+                                @method('DELETE')
+                            </form>
+                            <button type="button"
+                                    data-id="{{ $product->id }}"
+                                    onclick="confirmDelete(this)"
+                                    class="text-red-600 hover:text-red-900" title="Hapus">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
                 @empty
-                <tr>
-                    <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">Tidak ada produk ditemukan.</td>
-                </tr>
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">Tidak ada produk ditemukan.</td> {{-- colspan diubah menjadi 7 --}}
+                    </tr>
                 @endforelse
             </tbody>
         </table>
@@ -86,14 +90,13 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('search-input');
-        const urlParams = new URLSearchParams(window.location.search); // Menggunakan URLSearchParams
-        const searchTermFromUrl = urlParams.get('search'); // Mendapatkan nilai parameter 'search'
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchTermFromUrl = urlParams.get('search'); 
 
-        // Fokuskan input jika parameter 'search' ada di URL (bahkan jika kosong)
-        if (searchTermFromUrl !== null) {
+        if (searchTermFromUrl !== null) { 
             searchInput.focus();
-            // Memposisikan kursor di akhir teks yang ada
-            searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
+            const searchTerm = searchInput.value;
+            searchInput.setSelectionRange(searchTerm.length, searchTerm.length);
         }
     });
 </script>

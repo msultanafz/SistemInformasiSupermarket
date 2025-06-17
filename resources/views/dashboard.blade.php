@@ -12,7 +12,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-500">Pendapatan Hari Ini</p>
-                <p class="text-2xl font-semibold text-gray-800">Rp {{ number_format($pendapatanHariIni, 0, ',', '.') }}</p>
+                <p class="text-lg font-semibold text-gray-800">Rp {{ number_format($pendapatanHariIni, 0, ',', '.') }}</p>
             </div>
         </div>
     </div>
@@ -135,25 +135,25 @@
 <div class="bg-white rounded-lg shadow p-6">
     <h2 class="text-lg font-semibold text-gray-800 mb-4">Akses Cepat</h2>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <a href="{{ route('transactions.create') }}" class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-200 transition">
+        <a href="{{ route('transactions.create') }}" class="flex flex-col items-center justify-center p-4 border border-gray-200 bg-gray-100 rounded-lg hover:bg-blue-50 hover:border-blue-200 transition">
             <div class="p-3 rounded-full bg-blue-100 text-blue-600 mb-2">
                 <i class="fas fa-cash-register text-lg"></i>
             </div>
             <span class="text-sm font-medium text-gray-700 text-center">Mulai Transaksi (POS)</span>
         </a>
-        <a href="{{ route('products.create') }}" class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-200 transition">
+        <a href="{{ route('products.create') }}" class="flex flex-col items-center justify-center p-4 border border-gray-200 bg-gray-100 rounded-lg hover:bg-green-50 hover:border-green-200 transition">
             <div class="p-3 rounded-full bg-green-100 text-green-600 mb-2">
                 <i class="fas fa-plus-circle text-lg"></i>
             </div>
             <span class="text-sm font-medium text-gray-700 text-center">Tambah Produk Baru</span>
         </a>
-        <a href="{{ route('reports.daily') }}" class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-yellow-50 hover:border-yellow-200 transition">
+        <a href="{{ route('reports.daily') }}" class="flex flex-col items-center justify-center p-4 border border-gray-200 bg-gray-100 rounded-lg hover:bg-yellow-50 hover:border-yellow-200 transition">
             <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mb-2">
                 <i class="fas fa-file-alt text-lg"></i>
             </div>
             <span class="text-sm font-medium text-gray-700 text-center">Laporan Harian</span>
         </a>
-        <a href="{{ route('stock-opname.index') }}" class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-purple-50 hover:border-purple-200 transition">
+        <a href="{{ route('stock-opname.index') }}" class="flex flex-col items-center justify-center p-4 border border-gray-200 bg-gray-100 rounded-lg hover:bg-purple-50 hover:border-purple-200 transition">
             <div class="p-3 rounded-full bg-purple-100 text-purple-600 mb-2">
                 <i class="fas fa-clipboard-check text-lg"></i>
             </div>
